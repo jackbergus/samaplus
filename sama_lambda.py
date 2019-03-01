@@ -1,4 +1,5 @@
 from collections import defaultdict
+import data
 import operator
 import psycopg2
 from functools import reduce as fold
@@ -142,7 +143,7 @@ def runSQLQuery(query):
     conn = None
     data_path = []
     try:
-        conn = psycopg2.connect(dbname="p103")
+        conn = psycopg2.connect(dbname=data.dbname)
         cur = conn.cursor()
         cur.execute(query)
         row = cur.fetchone()
