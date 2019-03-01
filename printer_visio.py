@@ -37,7 +37,6 @@ mainPath = "/home/giacomo/Scrivania/evaluation/sama/"
 classificationPath = mainPath + "classification.csv"
 classification = pandas.read_csv(classificationPath)
 for queryId in example.keys():
-    queryId = 'F001_Q002Q004Q005'
     queryEdges = example[queryId]['edges']
     entrypoints = example[queryId]['pipeline_entrypoints']
     queryNodes = set()
@@ -54,10 +53,10 @@ for queryId in example.keys():
             totalScore = answer['totalScore']
             dictionary = answer['dictionary']
             ## TODO
-            if countDebugExamples == 100:
-                print("Stopping here for evaluation purposes")
-                break
-            if int(totalScore) > 3:
+            ##if countDebugExamples == 100:
+            ##    print("Stopping here for evaluation purposes")
+            ##    break
+            if int(totalScore) > 0:
                 print("Skipping Answer: " + str(answerId) + "/" + str(len(data.keys())))
                 continue
             countDebugExamples = countDebugExamples +1
@@ -100,7 +99,6 @@ for queryId in example.keys():
 
                 VV.extend(V)
                 GG.append(graphInformation(totalScore, queryId, answerId, hypothesisId))
-    break
 
 print("Vertices")
 pandas.DataFrame(VV).to_csv(mainPath+"vertices.csv", sep='\t', encoding='utf-8', index=False)

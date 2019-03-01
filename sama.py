@@ -58,55 +58,54 @@ def psi_with_lambda(q1_q2_commons, p1_alignmentElement, p2_align):
 def test_branch_and_bound(q1_q2_commons, p1_alignmentElement, s_dp_a, branch_and_bound_score):
     return psi_with_lambda(q1_q2_commons, p1_alignmentElement, s_dp_a[2]) + branch_and_bound_score + s_dp_a[0]
 
-def BFSIteration(p1_alignmentElement, cluster, Tree, IG_Eq, Visited, edit_threshold):
-    test = False
+def DFSIteration(p1_alignmentElement, cluster, Tree, IG_Eq, Visited, edit_threshold):
+    #test = False
     #if 'VM995305.000032' in p1_alignmentElement['nodeAlignmentMap']['?transactionEvent'] and p1_alignmentElement['lambd'] == 0:
     #    test = True
     #    print("DEBUG1")
+    DFSStatusUpdate = [Tree]
 
     ## Prior to unpacking the data, we have to test if the current node has been visited yet.
     ## If already visited, the current path is not going to be traversed again.
     if (p1_alignmentElement['q'] in Visited):
-        return [Tree]
-
-    ## A tree is just an unique element that is going to be extended as a score
-    branch_and_bound_score = Tree['totalScore']
-    ListFromTree = Tree['tree']
-    dictionary = Tree['dictionary']
+        return DFSStatusUpdate
 
     ## This step contains the extended tree with the current required steps
     ## TODO: q1 = p1_alignmentElement['q']
     ## TODO: BFSSteps = {q2: [] for (q1,q2) in filter(lambda cp: cp[0] == p1_alignmentElement['q'] and not (cp[1] in Visited), IG_Eq.keys())}
-    BFSSteps = []
+    #BFSSteps = []
     for (q1,q2) in IG_Eq.keys():
         if (q1 == p1_alignmentElement['q']) and not (q2 in Visited):
             q1_q2_commons = IG_Eq[(q1,q2)]
-            ## TODO: you should use the lambda information from the Tree
+            DFSStatusUpdate_neue = []
+
+            ## Iterating all the candidates for the same q2. These will extend the current tree with multiple subtrees
             for s_dp_a in cluster_iterate(cluster, q2):
-                if test and 'VM995305.000032' in s_dp_a[2]['?transactionEvent']:
-                    print("DEBUG2"+" WITH "+str(s_dp_a[0] == 0))
-                updatedScore = test_branch_and_bound(q1_q2_commons, p1_alignmentElement, s_dp_a, branch_and_bound_score)
-                if updatedScore <= edit_threshold:
-                    #if (updatedScore == 0):
-                    #    print("DEBUG")
-                    cp = list(ListFromTree)
-                    cp.append(alignmentAtomFromSPDA(s_dp_a, q2))
-                    current = dict(dictionary)
-                    current.update(s_dp_a[3])
+                for Tree2 in DFSStatusUpdate:
+                    ## A tree is just an unique element that is going to be extended as a score
+                    branch_and_bound_score = Tree2['totalScore']
+                    ListFromTree = Tree2['tree']
+                    dictionary = Tree2['dictionary']
+
+                    updatedScore = test_branch_and_bound(q1_q2_commons, p1_alignmentElement, s_dp_a, branch_and_bound_score)
+                    if updatedScore <= edit_threshold:
+                        #if (updatedScore == 0):
+                        #    print("DEBUG")
+                        cp = list(ListFromTree)
+                        cp.append(alignmentAtomFromSPDA(s_dp_a, q2))
+                        current = dict(dictionary)
+                        current.update(s_dp_a[3])
+                        extendedTree = treeAtom(cp, updatedScore, current)
+                        V = set(Visited)
+                        V.add(p1_alignmentElement['q'])
+                        DFSStatusUpdate_neue.extend(DFSIteration(extendedTree['tree'][-1], cluster, extendedTree, IG_Eq, V, edit_threshold))
+
                     ## TODO: BFSSteps[q2].append(treeAtom(cp, updatedScore, current))  # TODO
-                    BFSSteps.append(treeAtom(cp, updatedScore, current))
+                    #BFSSteps.append(treeAtom(cp, updatedScore, current))
 
-    ## TODO: tutte le possibili combinazioni delle derivazioni da q1, prendendo tutti i rami in modo bfs
-    V = set(Visited)
-    V.add(p1_alignmentElement['q'])
+            DFSStatusUpdate  = DFSStatusUpdate_neue
 
-    toReturn = []
-    for ttt in BFSSteps:
-        p2_alignmentElement = ttt['tree'][-1]
-        toReturn.extend(BFSIteration(p2_alignmentElement, cluster, ttt, IG_Eq, V, edit_threshold))
-    if (len(toReturn) == 0):
-        return [Tree]
-    return toReturn
+    return DFSStatusUpdate
 
 ## Getting the first node with the highest degree
 def pickNode(Vq, degree):
@@ -138,10 +137,11 @@ def sama_with_path_decomposed_query(lambda_cluster_keys, k_hops, mappa):
         (Vq, Eq, degree) = return_indexed_graph(lambda_cluster_keys)
         q_id = pickNode(Vq, degree)
         Visited = set()
+        print("maximum edit distance:"+str(k_hops * 6 * len(lambda_cluster_keys)))
         for p1_lambda_score, p1_data_path, p1_align, dictionary in cluster_iterate(cluster, q_id):
             Tree = treeSingleton(q_id, p1_lambda_score, p1_data_path, p1_align, dictionary)
-            Forest.extend(BFSIteration(alignmentAtom(q_id, p1_lambda_score, p1_data_path, p1_align), cluster, Tree, Eq,
-                                       Visited, k_hops * 6 * len(lambda_cluster_keys)))
+            Forest.extend(DFSIteration(alignmentAtom(q_id, p1_lambda_score, p1_data_path, p1_align), cluster, Tree, Eq,
+                                       Visited, 5)) # TODO: k_hops * 6 * len(lambda_cluster_keys) --> 5
 
         return Forest
     else:
