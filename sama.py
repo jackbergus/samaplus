@@ -18,6 +18,10 @@ def treeSingleton(q_id, p1_lambda_score, p1_data_path, p1_align, dictionary):
 def simple_tree_string(tree):
     return ("|".join(unique(filter(lambda z : (z[:1] == "E"), flatten(flatten(map(lambda x : map(lambda y: [y[0], y[2]] , x['p']),  tree["tree"])))))))+"\t"+("|".join(unique(filter(lambda z : (z[:2] == "VM") or (z[:2] == "RM"), flatten(flatten(map(lambda x : map(lambda y: [y[0], y[2]] , x['p']),  tree["tree"])))))))+"\t"+str(tree["totalScore"])+"\n"
 
+def simple_tree_string2(tree):
+    return ("\t"+("|".join(unique(flatten(flatten(map(lambda x : map(lambda y: [y[0], y[2]] , x['p']),  tree["tree"])))))))+"\t"+str(tree["totalScore"])+"\n"
+
+
 def simple_tree_print(tree):
     print("Score = "+str(tree["totalScore"])+" -- "+str(set(filter(lambda z : (z[:2] == "VM") or (z[:2] == "RM"), flatten(flatten(map(lambda x : map(lambda y: [y[0], y[2]] , x['p']),  tree["tree"])))))))
 

@@ -2,8 +2,8 @@ library(stringr)
 library(ggplot2)
 library(sqldf)
 
-setwd("/home/giacomo/Scrivania/desktop_trash/master_watercloset/data/v6/internal_format")
-g1 <- read.csv("GAIA_1.csv", sep="\t")
+setwd("/home/giacomo/Scrivania/desktop_trash/master/data/v6/internal_format")
+g1 <- read.csv("P103.csv", sep="\t")
 trimmed <- sqldf("select * from g1 where fact_provenance = 'HC000Q8G2'
  or fact_provenance = 'HC000T6J0'
                  or fact_provenance = 'IC0015YFI'
@@ -50,7 +50,7 @@ trimmed <- sqldf("select * from g1 where fact_provenance = 'HC000Q8G2'
                  or fact_provenance = 'HC000031H'
                  or fact_provenance = 'HC000Q8MF'
                  or fact_provenance = 'IC001L4Q9'")
-write.table(trimmed, file="GAIA_1_sub.csv", sep = '\t', row.names = F, quote = FALSE)
+write.table(trimmed, file="P103_sub.csv", sep = '\t', row.names = F, quote = FALSE)
 
 g1 <- read.csv("GAIA_3.csv", sep="\t")
 trimmed <- sqldf("select * from g1 where fact_provenance = 'HC000Q8G2'

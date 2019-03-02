@@ -44,7 +44,7 @@ for key in data.example.keys():
     file.close()
     file = open(main_path + key + ".tsv", "w", encoding='utf8')
     for tree in lls:
-        file.write(sama.simple_tree_string(tree))
+        file.write(sama.simple_tree_string2(tree))
     file.close()
     #exit(10)
     #L.extend(lls)
