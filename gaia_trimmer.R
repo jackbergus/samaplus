@@ -3,7 +3,7 @@ library(ggplot2)
 library(sqldf)
 
 setwd("/home/giacomo/Scrivania/desktop_trash/master_watercloset/data/v6/internal_format")
-g1 <- read.csv("coref.csv", sep="\t")
+g1 <- read.csv("coref_vv2.csv", sep="\t")
 trimmed <- sqldf("select * from g1 where fact_provenance = 'HC000Q8G2'
                  or fact_provenance = 'HC000T6J0'
                  or fact_provenance = 'IC0015YFI'
@@ -95,4 +95,4 @@ trimmed <- sqldf("select * from g1 where fact_provenance = 'HC000Q8G2'
                  or fact_provenance = 'HC00002ZN'
                  or fact_provenance = 'IC001L4Q9'
                  ")
-write.table(trimmed, file="coref_sub.csv", sep = '\t', row.names = F, quote = FALSE)
+write.table(trimmed, file="coref_vv2_sub.csv", sep = '\t', row.names = F, quote = FALSE)
