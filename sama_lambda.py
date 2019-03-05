@@ -31,7 +31,7 @@ WITH RECURSIVE graph AS (
           ,depth + 1
     FROM   graph g
     JOIN   fact o ON g.leaf in (o.mid, o."argumentId") 
-    AND    ROW(o."mid", o."nistFullLabel", o."argumentId", o."argumentRawString") <> ALL(path)
+    AND    NOT (ROW(o."mid", o."nistFullLabel", o."argumentId", o."argumentRawString") = ANY(path))
     AND    depth  <= $topk
     )
 select I.path 
@@ -171,6 +171,8 @@ def getLambda(lambda_path, k_hops, mappa):
 
     ## Maximum additional length that I need to expand
     initialEdgeWithTriplet = lambda_path[0]
+    print("getLambda")
+    print(lambda_path)
     where_column = ""
     sinkVariable = initialEdgeWithTriplet[0][0]
     if initialEdgeWithTriplet[0][0] in mappa.keys():

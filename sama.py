@@ -116,12 +116,16 @@ def sama_with_path_decomposed_query(lambda_cluster_keys, k_hops, mappa):
     ## The cluster is defined as a list of pairs, where the first element is the score of the paths, and the second one
     ## are the paths having the same edit score. Each path is composed by a pair, which is the actual data path and the
     ## lambda alignment
+    print("Cluster creation")
+    print(lambda_cluster_keys)
     cluster = {i : sama_lambda.getLambda(lambda_cluster_keys[i], k_hops, mappa) for i in range(len(lambda_cluster_keys))}
-    # import json
-    # from extended_sama import SetEncoder
-    # debug_cluster_file = open("Debug.json", "w", encoding="utf8")
-    # debug_cluster_file.write(json.dumps(cluster,indent=4, cls=SetEncoder, ensure_ascii=False))
-    # debug_cluster_file.close()
+    print("Done")
+    import json
+    from extended_sama import SetEncoder
+    debug_cluster_file = open("example.json", "w", encoding="utf8")
+    debug_cluster_file.write(json.dumps(cluster,indent=4, cls=SetEncoder, ensure_ascii=False))
+    debug_cluster_file.close()
+    print("Done Dumping")
     # exit(1)
     Forest = []
     ## DEBUGGING:
@@ -141,7 +145,7 @@ def sama_with_path_decomposed_query(lambda_cluster_keys, k_hops, mappa):
         for p1_lambda_score, p1_data_path, p1_align, dictionary in cluster_iterate(cluster, q_id):
             Tree = treeSingleton(q_id, p1_lambda_score, p1_data_path, p1_align, dictionary)
             Forest.extend(DFSIteration(alignmentAtom(q_id, p1_lambda_score, p1_data_path, p1_align), cluster, Tree, Eq,
-                                       Visited, 5)) # TODO: k_hops * 6 * len(lambda_cluster_keys) --> 5
+                                       Visited, k_hops * 6 * len(lambda_cluster_keys))) # TODO: k_hops * 6 * len(lambda_cluster_keys) --> 5
 
         return Forest
     else:
