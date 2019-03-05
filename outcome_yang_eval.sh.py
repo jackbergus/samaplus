@@ -423,7 +423,7 @@ outcome_list = [{'candidates': ['38057aae-6b81-4769-a2ee-71a4b5ac67b3',
   'event_label': 'Conflict.Attack',
   'represent_event_id': 'VM994833.000032'}]
 
-with open('/home/giacomo/Scrivania/evaluation/pipeline_outcome_TA2bis_linking/Yang_Python/relaxedMatchResults_gaia3.json') as f:
+with open('/home/giacomo/Scrivania/evaluation/pipeline_outcome_TA2bis_linking/Yang_Python/relaxedMatchResults_coref2.json') as f:
  outcome_list = json.load(f)
 
 filtered_list = list(filter(lambda x : len(x['candidates']) > 0, outcome_list))
@@ -435,7 +435,7 @@ for event in filtered_list:
     for y in event['candidates']:
         ta2_to_ldc[y].append(event['represent_event_id'])
 
-with open('/home/giacomo/Scrivania/evaluation/linking/linking_outcome_gaia3.json', 'w') as outfile:
+with open('/home/giacomo/Scrivania/evaluation/linking/linking_outcome_coref2.json', 'w') as outfile:
          json.dump(ta2_to_ldc, outfile)
 
 #print(ta2_to_ldc)
