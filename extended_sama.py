@@ -30,7 +30,7 @@ class SetEncoder(json.JSONEncoder):
 
 ## List of results
 L = []
-main_path = "/home/giacomo/Scrivania/evaluation/pipeline_outcome_TA2bis_linking/outcome_sama/"
+main_path = "/home/giacomo/Scrivania/evaluation/pipeline_outcome_TA2bis_linking/outcome_coref3/"
 ## Getting all the possible queries to be processed
 for key in data.example.keys():
     #key = 'F001_Q002Q004Q005'
