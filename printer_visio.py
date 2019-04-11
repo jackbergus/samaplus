@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+#
+# printer_visio.py
+# This file is part of SAMA+
+#
+# Copyright (C) 2019 - Giacomo Bergami
+#
+# SAMA+ is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License.
+#
+# SAMA+ is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with SAMA+. If not, see <http://www.gnu.org/licenses/>.
+#
 import json
 import pandas
 from pandasql import sqldf
@@ -33,10 +52,13 @@ EE = []
 ##GG = pandas.DataFrame(columns=graphInformation("", "", "", "").keys())
 GG = []
 
-mainPath = "/home/giacomo/Scrivania/evaluation/sama/"
+mainPath = "/home/giacomo/Scrivania/evaluation/sama2/"
 classificationPath = mainPath + "classification.csv"
 classification = pandas.read_csv(classificationPath)
-for queryId in example.keys():
+with_scores = pandas.read_csv(mainPath+"with_scores.csv")
+keys = ['F001_Q002']
+
+for queryId in keys:
     queryEdges = example[queryId]['edges']
     entrypoints = example[queryId]['pipeline_entrypoints']
     queryNodes = set()
@@ -48,24 +70,36 @@ for queryId in example.keys():
         data = {}
         data = json.load(f)
         countDebugExamples = 0
-        for answerId in data.keys():
-            answer = data[answerId]
-            totalScore = answer['totalScore']
-            dictionary = answer['dictionary']
+
+        add = " and score >= 1000"  # TODO: remove
+        df = pysqldf(
+            "SELECT distinct matched_hypothesis, subgraph_id from classification NATURAL JOIN with_scores where query_id='" + queryId + "' " + add) #TODO: "' and subgraph_id='" + answerId + "'" +
+        if (len(df) == 0):
+            continue
+            #for answerId in data.keys():
+            #answer = data[answerId]
+            #totalScore = answer['totalScore']
+            #dictionary = answer['dictionary']
             ## TODO
             ##if countDebugExamples == 100:
             ##    print("Stopping here for evaluation purposes")
             ##    break
-            if int(totalScore) > 0:
-                print("Skipping Answer: " + str(answerId) + "/" + str(len(data.keys())))
-                continue
-            countDebugExamples = countDebugExamples +1
-            print("Answer: " + str(answerId) + "/" + str(len(data.keys())))
-            df = pysqldf("SELECT distinct matched_hypothesis from classification where query_id='"+queryId+"' and subgraph_id='"+answerId+"'")
-            if (len(df) == 0):
-                continue
-            for index, row in df.iterrows():
+            #maximum = 3                                                                        TODO: start
+            #if queryId == 'F002_Q002Q004Q005':
+            #    maximum = 8
+            #if int(totalScore) > maximum:
+            #    #print("Skipping Answer: " + str(answerId) + "/" + str(len(data.keys())))
+            #    continue
+            #countDebugExamples = countDebugExamples +1                                         TODO: end
+            # TODO:  print("Answer: " + str(answerId) + "/" + str(len(data.keys())))
+            #
+        for index, row in df.iterrows():
                 hypothesisId = row['matched_hypothesis']
+                answerId = str(row['subgraph_id'])
+                print("Answer: " + str(answerId) + "/" + str(len(data.keys())))
+                answer = data[answerId]
+                totalScore = answer['totalScore']
+                dictionary = answer['dictionary']
                 if (hypothesisId is None):
                     hypothesisId = "NA"
                 V = []
@@ -75,10 +109,8 @@ for queryId in example.keys():
                                                queryNode,
                                                queryId, answerId, hypothesisId))
                 hypoNodes2 = set()
-                dfH = pysqldf("SELECT er, annotated_as from classification where query_id='" + queryId + "' and subgraph_id='" + answerId + "' and matched_hypothesis='" + hypothesisId + "'")
+                dfH = pysqldf("SELECT distinct er, annotated_as from classification where query_id='" + queryId + "' and subgraph_id='" + answerId + "' and matched_hypothesis='" + hypothesisId + "'")
                 classQ = pandas.Series(dfH.annotated_as.values, index=dfH.er).to_dict()
-
-
 
                 ## Edge recreation for display
                 E = list(map(lambda x : edgeInformation(x[0], x[1], x[2], "query", queryId, answerId, hypothesisId), queryEdges))

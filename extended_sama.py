@@ -1,8 +1,27 @@
+#
+# extended_sama.py
+# This file is part of SAMA+
+#
+# Copyright (C) 2019 - Giacomo Bergami
+#
+# SAMA+ is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License.
+#
+# SAMA+ is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with SAMA+. If not, see <http://www.gnu.org/licenses/>.
+#
 import replace_entrypoints_in_query_for_sama as rep
 import query_decomposition as qd
 import sama
 import data
 import json
+import io
 import sama_lambda
 
 c = 0
@@ -31,24 +50,26 @@ class SetEncoder(json.JSONEncoder):
 
 ## List of results
 L = []
-main_path = "/home/giacomo/Scrivania/evaluation/sama/"
+main_path = "/home/giacomo/Scrivania/evaluation/sama2/"
 ## Getting all the possible queries to be processed
-for key in data.example.keys():
-    key = 'F002_Q002Q004Q005'
+keys = ['F001_Q002', 'F002_Q002Q004Q005']
+
+for key in keys:
+    #key = 'F002_Q002Q004Q005'
     print(key)
     ls = rep.replace_entrypoints_in_query_for_sama(data.example[key])
     sama_query = ls[0]
     variable_to_entrypoint_map = ls[1]
     #for sama_query, variable_to_entrypoint_map in :
     lls = sama_with_disconnected_queries(sama_query, variable_to_entrypoint_map, data.example[key]['khop'])
-    file = open(main_path+key+"2.json", "w", encoding='utf8')
-    file.write(json.dumps(dict(zip(range(len(lls)), lls)),indent=4, cls=SetEncoder, ensure_ascii=False))
+    file = io.open(main_path+key+".json", "w", encoding='utf8')
+    file.write(json.dumps(dict(zip(range(len(lls)), lls)),indent=4, cls=SetEncoder, ensure_ascii=False).decode('utf-8'))
     file.close()
-    file = open(main_path + key + "2.tsv", "w", encoding='utf8')
+    file = io.open(main_path + key + ".tsv", "w", encoding='utf8')
     for tree in lls:
-        file.write(sama.simple_tree_string(tree))
+        file.write(sama.simple_tree_string(tree).decode('utf-8'))
     file.close()
-    exit(10)
+    #exit(10)
     #L.extend(lls)
 
 

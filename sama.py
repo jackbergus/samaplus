@@ -1,3 +1,21 @@
+#
+# sama.py
+# This file is part of SAMA+
+#
+# Copyright (C) 2019 - Giacomo Bergami
+#
+# SAMA+ is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License.
+#
+# SAMA+ is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with SAMA+. If not, see <http://www.gnu.org/licenses/>.
+#
 import sama_lambda
 import itertools
 from query_decomposition import unique
@@ -111,21 +129,25 @@ def DFSIteration(p1_alignmentElement, cluster, Tree, IG_Eq, Visited, edit_thresh
 def pickNode(Vq, degree):
     return sorted(range(len(Vq)), key=lambda x:degree[x])[-1]
 
+
+counter = 0
+
 def sama_with_path_decomposed_query(lambda_cluster_keys, k_hops, mappa):
     ## The cluster maps each path-id to its cluster.
     ## The cluster is defined as a list of pairs, where the first element is the score of the paths, and the second one
     ## are the paths having the same edit score. Each path is composed by a pair, which is the actual data path and the
     ## lambda alignment
+    global counter
     print("Cluster creation")
     print(lambda_cluster_keys)
     cluster = {i : sama_lambda.getLambda(lambda_cluster_keys[i], k_hops, mappa) for i in range(len(lambda_cluster_keys))}
     print("Done")
     import json
     from extended_sama import SetEncoder
-    debug_cluster_file = open("example.json", "w", encoding="utf8")
-    debug_cluster_file.write(json.dumps(cluster,indent=4, cls=SetEncoder, ensure_ascii=False))
-    debug_cluster_file.close()
-    print("Done Dumping")
+    #debug_cluster_file = open("example.json", "w", encoding="utf8")
+    #debug_cluster_file.write(json.dumps(cluster,indent=4, cls=SetEncoder, ensure_ascii=False))
+    #debug_cluster_file.close()
+    #print("Done Dumping")
     # exit(1)
     Forest = []
     ## DEBUGGING:
@@ -141,11 +163,18 @@ def sama_with_path_decomposed_query(lambda_cluster_keys, k_hops, mappa):
         (Vq, Eq, degree) = return_indexed_graph(lambda_cluster_keys)
         q_id = pickNode(Vq, degree)
         Visited = set()
-        print("maximum edit distance:"+str(k_hops * 6 * len(lambda_cluster_keys)))
+        if counter == 0:
+            maximum_edit_distance = 5
+            counter = counter+1
+        else:
+            maximum_edit_distance = 12
+            counter = counter+1
+        #maximum_edit_distance = k_hops * 6 * len(lambda_cluster_keys);
+        print("maximum edit distance:"+str(maximum_edit_distance))
         for p1_lambda_score, p1_data_path, p1_align, dictionary in cluster_iterate(cluster, q_id):
             Tree = treeSingleton(q_id, p1_lambda_score, p1_data_path, p1_align, dictionary)
             Forest.extend(DFSIteration(alignmentAtom(q_id, p1_lambda_score, p1_data_path, p1_align), cluster, Tree, Eq,
-                                       Visited, k_hops * 6 * len(lambda_cluster_keys))) # TODO: k_hops * 6 * len(lambda_cluster_keys) --> 5
+                                       Visited, maximum_edit_distance)) # TODO: k_hops * 6 * len(lambda_cluster_keys) --> 5
 
         return Forest
     else:

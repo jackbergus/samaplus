@@ -1,3 +1,21 @@
+#
+# sama_lambda.py
+# This file is part of SAMA+
+#
+# Copyright (C) 2019 - Giacomo Bergami
+#
+# SAMA+ is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License.
+#
+# SAMA+ is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with SAMA+. If not, see <http://www.gnu.org/licenses/>.
+#
 from collections import defaultdict
 import operator
 import psycopg2
