@@ -8,3 +8,4 @@ Debug.json
 .idea/
 .idea/*
 .idea
+*.pyc
